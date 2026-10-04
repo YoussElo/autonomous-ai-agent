@@ -33,3 +33,17 @@ def test_path_escape_blocked(tmp_path, monkeypatch):
     monkeypatch.setattr(tools, "WORKSPACE", tmp_path)
     out = write_file("../escape.txt", "x")
     assert out.startswith("erreur:")
+
+
+def test_sibling_dir_with_same_prefix_blocked(tmp_path, monkeypatch):
+    import tools
+
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (tmp_path / "workspace-evil").mkdir()
+    monkeypatch.setattr(tools, "WORKSPACE", workspace)
+    out = write_file("../workspace-evil/pwned.txt", "x")
+    assert out.startswith("erreur:")
+    assert not (tmp_path / "workspace-evil" / "pwned.txt").exists()
+    (tmp_path / "workspace-evil" / "secret.txt").write_text("secret")
+    assert read_file("../workspace-evil/secret.txt").startswith("erreur:")

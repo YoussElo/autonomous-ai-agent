@@ -41,7 +41,7 @@ def calculator(expression: str) -> str:
 
 def _resolve(path: str) -> Path:
     target = (WORKSPACE / path).resolve()
-    if not str(target).startswith(str(WORKSPACE.resolve())):
+    if not target.is_relative_to(WORKSPACE.resolve()):
         raise ValueError("Chemin hors du workspace autorisé.")
     return target
 
